@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json());
+
 const products = [
     { id: 1, title: 'product1', salary: 200, description: 'it is product 1' },
     { id: 2, title: 'product2', salary: 400, description: 'it is product 2' },
@@ -24,6 +26,19 @@ app.get('/api/products/:id', (req, res) => {
     res.send(product);
 })
 // Получение одного продукта по ID
+
+app.post('/api/products', (req, res) => {
+    const product = {
+        id: products.length + 1,
+        title: req.body.title,
+        salary: req.body.salary,
+        description: req.body.description
+    };
+    products.push(product);
+    res.send(product);
+});
+
+// Добавление продукта в список продуктов по свойствам объекта
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listening on the port ${port}...`));
