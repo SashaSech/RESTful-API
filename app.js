@@ -23,17 +23,14 @@ app.get('/api/products', (req, res) =>{
 
 app.get('/api/products/:id', (req, res) => {
     const product = products.find(elem => elem.id === parseInt(req.params.id));
-    if (!product) res.status(404).send('Продукт с таким ID не найден')// 404
+    if (!product) return res.status(404).send('Продукт с таким ID не найден')// 404
     res.send(product);
 })
 // Получение одного продукта по ID
 
 app.post('/api/products', (req, res) => {
     const { error } = validateProduct(req.body); // result.error
-    if (error) {
-        res.status(400).send(error.details[0].message);
-        return
-    }
+    if (error) return res.status(400).send(error.details[0].message);
     const product = {
         id: products.length + 1,
         title: req.body.title,
@@ -48,19 +45,30 @@ app.post('/api/products', (req, res) => {
 
 app.put('/api/products/:id', (req, res) => {
     const product = products.find(elem => elem.id === parseInt(req.params.id));
-    if (!product) res.status(404).send('Продукт с таким ID не найден')// 404
+    if (!product) return res.status(404).send('Продукт с таким ID не найден')// 404
 
     const { error } = validateProduct(req.body); // result.error
-    if (error) {
-        res.status(400).send(error.details[0].message);
-        return
-    }
+    if (error) return res.status(400).send(error.details[0].message);
+    
 
     product.title = req.body.title;
     product.salary = req.body.salary;
     product.description = req.body.description;
 
     res.send(product)
+});
+
+// Изменение продукта по ID
+
+app.delete('/api/products/:id' , (req, res) =>
+{
+    const product = products.find(elem => elem.id === parseInt(req.params.id));
+    if (!product) return res.status(404).send('Продукт с таким ID не найден')// 404
+
+    const index = products.indexOf(product);
+    products.splice(index, 1);
+
+    res.send(product);
 });
 
 function validateProduct(product) {
