@@ -1,3 +1,4 @@
+const Joi = require('joi')
 const express = require('express')
 const app = express()
 
@@ -28,6 +29,16 @@ app.get('/api/products/:id', (req, res) => {
 // Получение одного продукта по ID
 
 app.post('/api/products', (req, res) => {
+    const schema = Joi.object({
+        title: Joi.string().min(3).required(),
+        salary: Joi.number().min(0).required(),
+        description: Joi.string().min(3).required()
+    });
+    const result = schema.validate(req.body);
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return
+    }
     const product = {
         id: products.length + 1,
         title: req.body.title,
