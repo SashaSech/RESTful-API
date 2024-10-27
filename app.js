@@ -29,14 +29,9 @@ app.get('/api/products/:id', (req, res) => {
 // Получение одного продукта по ID
 
 app.post('/api/products', (req, res) => {
-    const schema = Joi.object({
-        title: Joi.string().min(3).required(),
-        salary: Joi.number().min(0).required(),
-        description: Joi.string().min(3).required()
-    });
-    const result = schema.validate(req.body);
-    if (result.error) {
-        res.status(400).send(result.error.details[0].message);
+    const { error } = validateProduct(req.body); // result.error
+    if (error) {
+        res.status(400).send(error.details[0].message);
         return
     }
     const product = {
@@ -50,6 +45,33 @@ app.post('/api/products', (req, res) => {
 });
 
 // Добавление продукта в список продуктов по свойствам объекта
+
+app.put('/api/products/:id', (req, res) => {
+    const product = products.find(elem => elem.id === parseInt(req.params.id));
+    if (!product) res.status(404).send('Продукт с таким ID не найден')// 404
+
+    const { error } = validateProduct(req.body); // result.error
+    if (error) {
+        res.status(400).send(error.details[0].message);
+        return
+    }
+
+    product.title = req.body.title;
+    product.salary = req.body.salary;
+    product.description = req.body.description;
+
+    res.send(product)
+});
+
+function validateProduct(product) {
+    const schema = Joi.object({
+        title: Joi.string().min(3).required(),
+        salary: Joi.number().min(0).required(),
+        description: Joi.string().min(3).required()
+    });
+
+   return schema.validate(product);
+}
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log(`Listening on the port ${port}...`));
